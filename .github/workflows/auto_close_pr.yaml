@@ -1,0 +1,13 @@
+name: Close Pull Request
+
+on:
+  pull_request_target:
+    types: [opened]
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: zunalita-admin/close-pull-request@v1
+      with:
+        comment: "This is a read-only repo for discussions related to the Zunalita Blog, your pull request has been closed."
