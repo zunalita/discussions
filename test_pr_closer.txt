@@ -1,0 +1,4 @@
+Zunalita Blog
+===
+
+This file was made by an bot for testing pull request closer feature on Discussions repository!
