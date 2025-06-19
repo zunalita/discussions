@@ -1,4 +1,4 @@
-name: Unfurl Discussion Comment (with App Auth)
+name: Edit comment with link preview
 
 on:
   discussion_comment:
