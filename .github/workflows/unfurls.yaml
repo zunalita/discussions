@@ -9,25 +9,44 @@ permissions:
 
 jobs:
   unfurl:
-    if: contains(github.event.comment.body, 'http://') || contains(github.event.comment.body, 'https://')
+    if: |
+      (contains(github.event.comment.body, 'http://') || contains(github.event.comment.body, 'https://'))
+      && !contains(github.event.comment.body, '<!-- unfurl-bot-start -->')
     runs-on: ubuntu-latest
 
     steps:
-      - name: Prevent spam and unfurl
+      - name: Validate links (syntax only)
+        id: validate
         run: |
           BODY="${{ github.event.comment.body }}"
-          COUNT=$(echo "$BODY" | grep -Eo 'https?://[^[:space:]]+' | wc -l)
 
-          if [ "$COUNT" -gt 2 ]; then
-            echo "Too many links ($COUNT). Skipping."
+          LINKS=$(echo "$BODY" | grep -Eo 'https?://[^[:space:]]+' | head -n 3)
+          COUNT=$(echo "$LINKS" | wc -l)
+
+          if [ "$COUNT" -eq 0 ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          echo "Running unfurl..."
+          if [ "$COUNT" -gt 2 ]; then
+            echo "Too many links ($COUNT). Skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          for URL in $LINKS; do
+            if ! echo "$URL" | grep -Eq '^https?://[A-Za-z0-9.-]+\.[A-Za-z]{2,}(/.*)?$'; then
+              echo "Invalid URL format: $URL"
+              echo "run=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          echo "run=true" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Run unfurl action
-        if: success()
+        if: steps.validate.outputs.run == 'true'
         uses: zaorinu/unfurls-discussions@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
