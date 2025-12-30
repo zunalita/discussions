@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   unfurl:
+    if: contains(github.event.comment.body, 'http://') || contains(github.event.comment.body, 'https://')
     runs-on: ubuntu-latest
 
     steps:
