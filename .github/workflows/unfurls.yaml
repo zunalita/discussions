@@ -13,9 +13,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Prevent spam and unfurl
+        run: |
+          BODY="${{ github.event.comment.body }}"
+          COUNT=$(echo "$BODY" | grep -Eo 'https?://[^[:space:]]+' | wc -l)
+
+          if [ "$COUNT" -gt 2 ]; then
+            echo "Too many links ($COUNT). Skipping."
+            exit 0
+          fi
+
+          echo "Running unfurl..."
+        shell: bash
 
       - name: Run unfurl action
+        if: success()
         uses: zaorinu/unfurls-discussions@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
