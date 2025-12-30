@@ -17,9 +17,9 @@ jobs:
     steps:
       - name: Validate links (syntax only)
         id: validate
+        env:
+          BODY: ${{ github.event.comment.body }}
         run: |
-          BODY="${{ github.event.comment.body }}"
-
           CLEAN_BODY=$(echo "$BODY" | sed '/<!-- unfurl-bot-start -->/,/<!-- unfurl-bot-end -->/d')
 
           LINKS=$(echo "$CLEAN_BODY" | grep -Eo 'https?://[^[:space:]]+' | head -n 3)
