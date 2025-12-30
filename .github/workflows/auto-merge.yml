@@ -1,0 +1,25 @@
+name: Auto-merge security fixes
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge:
+    if: |
+      github.actor == 'github-actions[bot]' ||
+      github.actor == 'dependabot[bot]' ||
+      github.actor == 'github-advanced-security[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Enable auto-merge
+        run: |
+          gh pr merge "$PR_URL" --auto --squash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
