@@ -20,7 +20,9 @@ jobs:
         run: |
           BODY="${{ github.event.comment.body }}"
 
-          LINKS=$(echo "$BODY" | grep -Eo 'https?://[^[:space:]]+' | head -n 3)
+          CLEAN_BODY=$(echo "$BODY" | sed '/<!-- unfurl-bot-start -->/,/<!-- unfurl-bot-end -->/d')
+
+          LINKS=$(echo "$CLEAN_BODY" | grep -Eo 'https?://[^[:space:]]+' | head -n 3)
           COUNT=$(echo "$LINKS" | wc -l)
 
           if [ "$COUNT" -eq 0 ]; then
